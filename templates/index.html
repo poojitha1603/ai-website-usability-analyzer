@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>AI Website Usability Analyzer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -14,22 +16,25 @@
         and accessibility report.
     </p>
 
+    <!-- FORM -->
     <form method="POST">
-        <input type="text" name="url"
-               placeholder="Enter website URL (e.g. google.com)" required>
-        <button type="submit"
-                onclick="this.innerText='Analyzing… ⏳'; this.disabled=true;">
-            Analyze
-        </button>
+        <input
+            type="text"
+            name="url"
+            placeholder="Enter website URL (e.g. google.com)"
+            required
+        >
+        <button type="submit">Analyze</button>
     </form>
 
     <small class="hint">
         Example: google.com, wikipedia.org, yourportfolio.com
     </small>
 
+    <!-- INFO CARD (only when no result yet) -->
     {% if not result %}
     <div class="card info-card">
-        <p>👋 What you’ll get:</p>
+        <h3>👋 What you’ll get</h3>
         <ul>
             <li>✔ Usability score (0–100)</li>
             <li>✔ Readability analysis</li>
@@ -39,69 +44,79 @@
     </div>
     {% endif %}
 
+    <!-- RESULT SECTION -->
     {% if result %}
         {% if result.error %}
-        <div class="card error-card">
-            ❌ {{ result.error }}
-        </div>
+            <div class="card error-card">
+                ❌ {{ result.error }}
+            </div>
         {% else %}
-        <div class="card">
-            <h2>Results for {{ result.final_url }}</h2>
-            <p class="entered">Entered URL: {{ result.input_url }}</p>
+            <div class="card">
+                <h2>Results for {{ result.final_url }}</h2>
+                <p class="entered">Entered URL: {{ result.input_url }}</p>
 
-            <div class="score-box">
-                <div class="score-label">Usability Score</div>
-                <div class="progress">
-                    <div class="progress-bar
-                        {% if result.score >= 75 %}good
-                        {% elif result.score >= 50 %}average
-                        {% else %}poor{% endif %}"
-                        style="width: {{ result.score }}%">
+                <!-- SCORE -->
+                <div class="score-box">
+                    <div class="score-label">Usability Score</div>
+
+                    <div class="progress">
+                        <div class="progress-bar
+                            {% if result.score >= 75 %}good
+                            {% elif result.score >= 50 %}average
+                            {% else %}poor{% endif %}"
+                            style="width: {{ result.score }}%">
+                        </div>
                     </div>
+
+                    <p class="score-text">
+                        {{ result.score }} / 100 —
+                        {% if result.score >= 75 %}
+                            <span class="badge good">Good</span>
+                        {% elif result.score >= 50 %}
+                            <span class="badge average">Average</span>
+                        {% else %}
+                            <span class="badge poor">Poor</span>
+                        {% endif %}
+                    </p>
                 </div>
 
-                <p class="score-text">
-                    {{ result.score }} / 100 —
-                    {% if result.score >= 75 %}
-                        <span class="badge good">Good</span>
-                    {% elif result.score >= 50 %}
-                        <span class="badge average">Average</span>
+                <!-- READABILITY -->
+                <div class="section">
+                    <h3>📘 Readability</h3>
+                    <p>
+                        Level: <b>{{ result.readability.level }}</b><br>
+                        Approximate Score: {{ result.readability.flesch_score }}
+                    </p>
+                </div>
+
+                <!-- ACCESSIBILITY -->
+                <div class="section">
+                    <h3>♿ Accessibility</h3>
+                    {% if result.issues %}
+                        <ul>
+                            {% for issue in result.issues %}
+                                <li>❌ {{ issue }}</li>
+                            {% endfor %}
+                        </ul>
                     {% else %}
-                        <span class="badge poor">Poor</span>
+                        <p class="success">✅ No accessibility issues found</p>
                     {% endif %}
-                </p>
-            </div>
+                </div>
 
-            <div class="section">
-                <h3>📘 Readability</h3>
-                <p>
-                    Level: <b>{{ result.readability.level }}</b><br>
-                    Approx Score: {{ result.readability.flesch_score }}
-                </p>
+                <!-- SUGGESTIONS -->
+                <div class="section">
+                    <h3>💡 Suggestions</h3>
+                    {% if result.suggestions %}
+                        <ul>
+                            {% for suggestion in result.suggestions %}
+                                <li>{{ suggestion }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No major improvements needed 🎉</p>
+                    {% endif %}
+                </div>
             </div>
-
-            <div class="section">
-                <h3>♿ Accessibility</h3>
-                {% if result.issues %}
-                <ul>
-                    {% for issue in result.issues %}
-                        <li>❌ {{ issue }}</li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p class="success">✅ No accessibility issues found</p>
-                {% endif %}
-            </div>
-
-            <div class="section">
-                <h3>💡 Suggestions</h3>
-                <ul>
-                    {% for s in result.suggestions %}
-                        <li>{{ s }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
         {% endif %}
     {% endif %}
 
