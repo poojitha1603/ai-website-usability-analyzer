@@ -30,16 +30,16 @@ python app.py
 ```
 
 ## 📁 Project Structure
+```
 ai-website-usability-analyzer/
-│
 ├── app.py
 ├── requirements.txt
 ├── templates/
 │   └── index.html
 └── static/
-├── css/
-└── js/
-
+    ├── css/
+    └── js/
+```
 ## 👩‍💻 Author
 **Nuka Sai Poojitha**  
 [LinkedIn](https://www.linkedin.com/in/saipoojithanuka16) | [GitHub](https://github.com/poojitha1603)
